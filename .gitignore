@@ -1,0 +1,39 @@
+# 特定要素（とそれ以下）
+/src/main/resources/META-INF/spring-configuration-metadata.json
+/bin
+/build
+/out
+/nbproject/private
+/nbbuild
+/dist/
+/nbdist
+
+# 除外する拡張子
+*.db
+*.swp
+*.log
+*.bak
+*.olg
+*.org
+*.jar
+*.zip
+
+# .* リソース
+.gradle
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+.idea
+*.iws
+*.iml
+*.ipr
+.vscode/
+.nb-gradle/
+
+# 正し以下はルートバージョン管理をする
+!gradle/wrapper/gradle-wrapper.jar
+!/extlib/*.jar

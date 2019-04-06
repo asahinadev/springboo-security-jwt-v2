@@ -1,0 +1,42 @@
+plugins {
+	id 'org.springframework.boot' version '2.1.4.RELEASE'
+	id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.example.spring.jwt'
+version = '0.0.1'
+sourceCompatibility = '1.8'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'io.jsonwebtoken:jjwt:0.9.0'
+	
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test' 
+	testImplementation 'org.springframework.security:spring-security-test' 
+	
+	testImplementation group: 'org.junit.jupiter',  name: 'junit-jupiter-engine'
+	testImplementation group: 'org.junit.platform', name: 'junit-platform-runner'
+	testImplementation group: 'org.junit.platform', name: 'junit-platform-suite-api'
+	testImplementation group: 'org.junit.platform', name: 'junit-platform-engine'
+	
+}
+

@@ -1,0 +1,10 @@
+app:
+  authentication:
+    properties:
+      header-token: x-token
+      public-key-path: ''
+
+logging:
+  level:
+    root: INFO
+    com.example: DEBUG 
