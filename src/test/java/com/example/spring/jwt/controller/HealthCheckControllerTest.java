@@ -44,7 +44,7 @@ public class HealthCheckControllerTest {
 	@BeforeEach
 	public void setUp() throws Exception {
 		mvc = MockMvcBuilders
-				.standaloneSetup(controller)
+				.webAppContextSetup(context)
 				.alwaysDo(log())
 				.build();
 		mapper = new ObjectMapper();

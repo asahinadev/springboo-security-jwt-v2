@@ -10,10 +10,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * レスポンス.
+ */
 @Getter
 @Setter
 @SuppressWarnings("serial")
-@JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+@JsonInclude(content = JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResponceDto implements Serializable {
 

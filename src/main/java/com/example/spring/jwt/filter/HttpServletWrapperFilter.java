@@ -15,6 +15,9 @@ import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
+/**
+ * リクエスト、レスポンスをキャッシュ可能にする.
+ */
 @Component
 public class HttpServletWrapperFilter
 		extends GenericFilterBean

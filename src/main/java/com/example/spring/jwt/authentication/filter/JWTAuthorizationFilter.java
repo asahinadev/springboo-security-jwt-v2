@@ -17,21 +17,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.thymeleaf.util.StringUtils;
 
 import com.example.spring.jwt.Application;
 import com.example.spring.jwt.authentication.dto.AuthenticationToken;
-import com.example.spring.jwt.authentication.exception.HeaderTokenIllegalException;
-import com.example.spring.jwt.authentication.exception.HeaderTokenNotfoundException;
+import com.example.spring.jwt.authentication.exception.TokenIllegalException;
+import com.example.spring.jwt.authentication.exception.TokenNotfoundException;
 import com.example.spring.jwt.authentication.properties.AuthProperties;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+/**
+ * 認証フィルター.
+ */
+@Slf4j
 public class JWTAuthorizationFilter
 		extends BasicAuthenticationFilter {
 
@@ -43,12 +48,20 @@ public class JWTAuthorizationFilter
 
 	RSAPublicKey publicKey;
 
+	/**
+	 * 例外エントリを指定したコンストラクタ.
+	 * 
+	 * @param manager        認証管理
+	 * @param entryPoint     例外エントリ
+	 * @param authProperties 認証設定
+	 */
 	public JWTAuthorizationFilter(
 			AuthenticationManager manager,
+			AuthenticationEntryPoint entryPoint,
 			AuthProperties authProperties) {
 
-		super(manager);
-		log.debug("<INIT>({},{})", manager, authProperties);
+		super(manager, entryPoint);
+		log.debug("<INIT>({},{},{})", manager, entryPoint, authProperties);
 		this.authProperties = authProperties;
 		log.debug("data = {}, hash {}", authProperties, authProperties.hashCode());
 	}
@@ -93,14 +106,6 @@ public class JWTAuthorizationFilter
 		}
 	}
 
-	private InputStream publicKeyIpnputStream() throws IOException {
-		String path = authProperties.getPublicKeyPath();
-		if (!StringUtils.isEmpty(path)) {
-			return new FileInputStream(path);
-		}
-		return Application.class.getResourceAsStream(DEFAULT_PUBLIC_KEY_RESOURCE);
-	}
-
 	@Override
 	protected void doFilterInternal(
 			HttpServletRequest request,
@@ -109,18 +114,33 @@ public class JWTAuthorizationFilter
 			throws IOException, ServletException {
 		log.debug("doFilterInternal({},{},{})", request, response, chain);
 
-		String token = request.getHeader(authProperties.getHeaderToken());
+		try {
 
-		if (token == null) {
-			throw new HeaderTokenNotfoundException();
+			String token = request.getHeader(authProperties.getHeaderToken());
+
+			log.debug("token => {}", token);
+
+			if (token == null) {
+				throw new TokenNotfoundException();
+			}
+
+			SecurityContextHolder.getContext().setAuthentication(authentication(token));
+			chain.doFilter(request, response);
+
+		} catch (AuthenticationException e) {
+			log.warn(e.getMessage(), e);
+
+			AuthenticationEntryPoint endPoint = getAuthenticationEntryPoint();
+			log.debug("endPoint {}", endPoint);
+
+			if (endPoint != null) {
+				log.debug("endPoint {} {}", endPoint, "exec");
+				endPoint.commence(request, response, e);
+			}
 		}
-
-		SecurityContextHolder.getContext().setAuthentication(authentication(token));
-
-		super.doFilterInternal(request, response, chain);
 	}
 
-	protected AuthenticationToken authentication(String token) {
+	private AuthenticationToken authentication(String token) {
 		log.debug("authentication({})", token);
 
 		// parse the token.
@@ -132,13 +152,21 @@ public class JWTAuthorizationFilter
 		String user = claims.getSubject();
 
 		if (user == null) {
-			throw new HeaderTokenIllegalException();
+			throw new TokenIllegalException();
 		}
 
 		AuthenticationToken authenticationToken = new AuthenticationToken(user);
 		log.debug("data = {}, hash {}", authenticationToken, authenticationToken.hashCode());
 
 		return authenticationToken;
+	}
+
+	private InputStream publicKeyIpnputStream() throws IOException {
+		String path = authProperties.getPublicKeyPath();
+		if (!StringUtils.isEmpty(path)) {
+			return new FileInputStream(path);
+		}
+		return Application.class.getResourceAsStream(DEFAULT_PUBLIC_KEY_RESOURCE);
 	}
 
 }

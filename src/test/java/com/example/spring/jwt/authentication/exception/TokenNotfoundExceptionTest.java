@@ -7,31 +7,26 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class HeaderTokenNotfoundExceptionTest {
+public class TokenNotfoundExceptionTest {
 
 	@Test
 	public void testHeaderTokenNotfoundException() {
-		new HeaderTokenNotfoundException();
-	}
-
-	@Test
-	public void testHeaderTokenNotfoundExceptionStringThrowableBooleanBoolean() {
-		new HeaderTokenNotfoundException("dummy", new Exception(), true, true);
+		new TokenNotfoundException();
 	}
 
 	@Test
 	public void testHeaderTokenNotfoundExceptionStringThrowable() {
-		new HeaderTokenNotfoundException("dummy", new Exception());
+		new TokenNotfoundException("dummy", new Exception());
 	}
 
 	@Test
 	public void testHeaderTokenNotfoundExceptionString() {
-		new HeaderTokenNotfoundException("dummy");
+		new TokenNotfoundException("dummy");
 	}
 
 	@Test
 	public void testHeaderTokenNotfoundExceptionThrowable() {
-		new HeaderTokenNotfoundException(new Exception());
+		new TokenNotfoundException(new Exception());
 	}
 
 }

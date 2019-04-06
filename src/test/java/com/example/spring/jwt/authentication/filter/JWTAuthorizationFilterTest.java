@@ -14,14 +14,17 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.example.spring.jwt.ApplicationTests;
 import com.example.spring.jwt.authentication.dto.AuthenticationToken;
-import com.example.spring.jwt.authentication.exception.HeaderTokenIllegalException;
-import com.example.spring.jwt.authentication.exception.HeaderTokenNotfoundException;
+import com.example.spring.jwt.authentication.endpoint.JWTAuthenticationEntryPoint;
 import com.example.spring.jwt.authentication.properties.AuthProperties;
 import com.example.spring.jwt.authentication.values.Role;
+import com.example.spring.jwt.dto.ResponceDto;
+import com.example.spring.jwt.util.JsonUtil;
+import com.example.spring.jwt.values.Status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -31,31 +34,44 @@ public class JWTAuthorizationFilterTest {
 	AuthProperties properties;
 
 	AuthenticationManager manager;
-
 	JWTAuthorizationFilter filter;
+	JWTAuthenticationEntryPoint entoryPoint;
+	MockHttpServletRequest request;
+	MockHttpServletResponse response;
+	MockFilterChain chain = new MockFilterChain();
 
 	@BeforeEach
 	public void setUp() throws ServletException {
-
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		chain = new MockFilterChain();
+		entoryPoint = new JWTAuthenticationEntryPoint();
 		manager = (a) -> {
-			// —˜—p‚µ‚È‚¢‚½‚ßƒ_ƒ~[
+			// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ†ã‚¹ãƒˆ
 			return a;
 		};
+
+		filter = new JWTAuthorizationFilter(manager, entoryPoint, properties);
+	}
+
+	@Test
+	public void testResourceOK() throws Exception {
+		// å…¬é–‹éµã¯ãƒªã‚½ãƒ¼ã‚¹ã§èª­ã¿è¾¼ã‚€
+		properties.setPublicKeyPath("");
+		test(ApplicationTests.TOKEN);
 	}
 
 	@Test
 	public void testFile() throws Exception {
 
-		// ƒeƒXƒg—p‚Ì‚½‚ß“à•”Œ®‚ğg—p
+		// å…¬é–‹éµã¯ãƒªã‚½ãƒ¼ã‚¹ã‹ã‚‰ file ã«å¤‰æ›ã—ã¦é–‹ã
 		properties.setPublicKeyPath(
-				getClass()
-						.getResource(JWTAuthorizationFilter.DEFAULT_PUBLIC_KEY_RESOURCE)
-						.getFile());
+				getClass().getResource(JWTAuthorizationFilter.DEFAULT_PUBLIC_KEY_RESOURCE).getFile());
 
-		filter = new JWTAuthorizationFilter(manager, properties);
 		filter.initFilterBean();
 
-		AuthenticationToken auth = filter.authentication(ApplicationTests.TOKEN);
+		test(ApplicationTests.TOKEN);
+		AuthenticationToken auth = (AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 
 		assertEquals(auth.getPrincipal(), "1234567890");
 		assertEquals(auth.getAuthorities().get(0).getAuthority(), Role.NONE.getAuthority());
@@ -64,70 +80,60 @@ public class JWTAuthorizationFilterTest {
 	@Test
 	public void testFileException() throws Exception {
 
-		// ƒeƒXƒg—p‚Ì‚½‚ß“à•”Œ®‚ğg—p
-		properties.setPublicKeyPath(
-				getClass()
-						.getResource(JWTAuthorizationFilter.DEFAULT_PUBLIC_KEY_RESOURCE)
-						.getFile() + "***");
+		// å…¬é–‹éµã¯å­˜åœ¨ã—ãªã„ãƒ‘ã‚¹
+		properties.setPublicKeyPath("////");
 
-		filter = new JWTAuthorizationFilter(manager, properties);
-
-		// ‚±‚Ì‰º‚Ìs‚Í—áŠO‚ª”­¶‚·‚é‚ª–â‘è‚È‚¢
-		assertThrows(ServletException.class, filter::initFilterBean);
+		// ä¾‹å¤–ãƒã‚§ãƒƒã‚¯
+		assertThrows(ServletException.class, () -> {
+			JWTAuthorizationFilter filter = new JWTAuthorizationFilter(manager, entoryPoint, properties);
+			filter.initFilterBean();
+		});
 	}
 
 	@Test
-	public void testDoFilter() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader(properties.getHeaderToken(), ApplicationTests.TOKEN);
-
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockFilterChain chain = new MockFilterChain();
-
-		// ƒeƒXƒg—p‚Ì‚½‚ß“à•”Œ®‚ğg—p
+	public void testTokenIllegalException() throws Exception {
+		// å…¬é–‹éµã¯ãƒªã‚½ãƒ¼ã‚¹ã§èª­ã¿è¾¼ã‚€
 		properties.setPublicKeyPath("");
 
-		filter = new JWTAuthorizationFilter(manager, properties);
+		// ä¾‹å¤–ãƒã‚§ãƒƒã‚¯
+		test(ApplicationTests.TOKEN_ERROR);
+		String value = response.getContentAsString();
+		System.out.println(value);
+		ResponceDto dto = JsonUtil.toObject(ResponceDto.class, value);
+
+		// ãƒ¬ã‚¹ãƒãƒ³ã‚¹ãƒã‚§ãƒƒã‚¯
+		assertEquals(dto.getStatus(), Status.NG);
+		assertEquals(dto.getMessage(), "TOKEN ILLEGAL");
+		assertEquals(dto.getCode(), "E0000401");
+	}
+
+	@Test
+	public void testTokenNotfoundException() throws Exception {
+		// å…¬é–‹éµã¯ãƒªã‚½ãƒ¼ã‚¹ã§èª­ã¿è¾¼ã‚€
+		properties.setPublicKeyPath("");
+
+		// ä¾‹å¤–ãƒã‚§ãƒƒã‚¯
+		test(null);
+		String value = response.getContentAsString();
+		System.out.println(value);
+		ResponceDto dto = JsonUtil.toObject(ResponceDto.class, value);
+
+		// ãƒ¬ã‚¹ãƒãƒ³ã‚¹ãƒã‚§ãƒƒã‚¯
+		assertEquals(dto.getStatus(), Status.NG);
+		assertEquals(dto.getMessage(), "TOKEN NOT FOUND");
+		assertEquals(dto.getCode(), "E0000401");
+	}
+
+	private void test(String token) throws Exception {
+
+		// ãƒªã‚¯ã‚¨ã‚¹ãƒˆè¨­å®š
+		if (token != null) {
+			request.addHeader(properties.getHeaderToken(), token);
+		}
+
 		filter.initFilterBean();
 
 		filter.doFilter(request, response, chain);
-	}
-
-	@Test
-	public void testDoFilterHeaderTokenIllegalException() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader(properties.getHeaderToken(), ApplicationTests.TOKEN_ERROR);
-
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockFilterChain chain = new MockFilterChain();
-
-		// ƒeƒXƒg—p‚Ì‚½‚ß“à•”Œ®‚ğg—p
-		properties.setPublicKeyPath("");
-
-		filter = new JWTAuthorizationFilter(manager, properties);
-		filter.initFilterBean();
-
-		assertThrows(HeaderTokenIllegalException.class, () -> {
-			filter.doFilter(request, response, chain);
-		});
-	}
-
-	@Test
-	public void testDoFilterHeaderTokenNotfoundException() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockFilterChain chain = new MockFilterChain();
-
-		// ƒeƒXƒg—p‚Ì‚½‚ß“à•”Œ®‚ğg—p
-		properties.setPublicKeyPath("");
-
-		filter = new JWTAuthorizationFilter(manager, properties);
-		filter.initFilterBean();
-
-		assertThrows(HeaderTokenNotfoundException.class, () -> {
-			filter.doFilter(request, response, chain);
-		});
 
 	}
 

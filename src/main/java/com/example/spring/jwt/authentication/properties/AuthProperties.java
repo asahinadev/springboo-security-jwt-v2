@@ -6,12 +6,14 @@ import org.springframework.stereotype.Component;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 認証設定.
+ */
 @Getter
 @Setter
 @Component
 @ConfigurationProperties(prefix = "app.authentication.properties")
 public class AuthProperties {
-
 
 	String headerToken = "x-token";
 

@@ -7,31 +7,26 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class HeaderTokenIllegalExceptionTest {
+public class TokenIllegalExceptionTest {
 
 	@Test
 	public void testHeaderTokenIllegalException() {
-		new HeaderTokenIllegalException();
-	}
-
-	@Test
-	public void testHeaderTokenIllegalExceptionStringThrowableBooleanBoolean() {
-		new HeaderTokenIllegalException("dummy", new Exception(), true, true);
+		new TokenIllegalException();
 	}
 
 	@Test
 	public void testHeaderTokenIllegalExceptionStringThrowable() {
-		new HeaderTokenIllegalException("dummy", new Exception());
+		new TokenIllegalException("dummy", new Exception());
 	}
 
 	@Test
 	public void testHeaderTokenIllegalExceptionString() {
-		new HeaderTokenIllegalException("dummy");
+		new TokenIllegalException("dummy");
 	}
 
 	@Test
 	public void testHeaderTokenIllegalExceptionThrowable() {
-		new HeaderTokenIllegalException(new Exception());
+		new TokenIllegalException(new Exception());
 	}
 
 }
