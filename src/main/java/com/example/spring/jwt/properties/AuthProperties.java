@@ -1,4 +1,4 @@
-package com.example.spring.jwt.authentication.properties;
+package com.example.spring.jwt.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -18,5 +18,9 @@ public class AuthProperties {
 	String headerToken = "x-token";
 
 	String publicKeyPath;
+
+	boolean userNotFound = false;
+
+	boolean verify = true;
 
 }

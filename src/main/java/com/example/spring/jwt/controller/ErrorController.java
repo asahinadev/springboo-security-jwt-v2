@@ -4,12 +4,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.example.spring.jwt.authentication.properties.AuthProperties;
 import com.example.spring.jwt.dto.ResponceDto;
+import com.example.spring.jwt.properties.AuthProperties;
 import com.example.spring.jwt.values.Status;
 
 /**
@@ -35,6 +36,7 @@ public class ErrorController {
 		ResponceDto responceDto = new ResponceDto();
 		responceDto.setStatus(Status.NG);
 		responceDto.setCode(getErrorCode(request.getServletPath(), e));
+		responceDto.setMessage(e.getMessage());
 
 		return responceDto;
 	}
@@ -42,9 +44,19 @@ public class ErrorController {
 	private String getErrorCode(String path, Exception e) {
 		String code = "E9999999";
 
-		/** **/
-		// TODO エラーコードの設定
-		/** **/
+		switch (path) {
+			case "/start":
+				if (BadCredentialsException.class.isInstance(e)) {
+					code = "E2000401";
+				} else {
+					code = "E2000500";
+				}
+				break;
+
+			default:
+				break;
+
+		}
 
 		return code;
 	}

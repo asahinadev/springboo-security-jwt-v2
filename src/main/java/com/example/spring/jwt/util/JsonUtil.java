@@ -10,6 +10,11 @@ import lombok.SneakyThrows;
  */
 public class JsonUtil {
 
+	protected static JsonUtil INSTACE = new JsonUtil();
+
+	private JsonUtil() {
+	}
+
 	public static final ObjectMapper MAPPER = new ObjectMapper();
 	static {
 		MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);

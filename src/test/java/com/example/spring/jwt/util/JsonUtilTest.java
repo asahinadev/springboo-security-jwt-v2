@@ -1,25 +1,15 @@
 package com.example.spring.jwt.util;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.fail;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.junit.Test;
 
 import com.example.spring.jwt.dto.ResponceDto;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-class JsonUtilTest {
-
-	@BeforeEach
-	void setUp() throws Exception {
-	}
+public class JsonUtilTest {
 
 	public static class TestDef {
 		@Getter
@@ -28,21 +18,38 @@ class JsonUtilTest {
 	}
 
 	@Test
-	void testToStringError() {
+	public void testToString() {
+
+		TestDef test = new TestDef();
+
+		JsonUtil.toString(test);
+	}
+
+	@Test
+	public void testToStringError() {
 
 		TestDef test = new TestDef();
 		test.setTest(test);
 
-		assertThrows(Exception.class, () -> {
+		try {
 			JsonUtil.toString(test);
-		});
+			fail();
+		} catch (Exception e) {
+		}
 	}
 
 	@Test
-	void testToObjectError() {
-		assertThrows(Exception.class, () -> {
+	public void testTo() {
+		JsonUtil.toObject(ResponceDto.class, "{ \"status\" : \"OK\" }");
+	}
+
+	@Test
+	public void testToObjectError() {
+		try {
 			JsonUtil.toObject(ResponceDto.class, "{");
-		});
+			fail();
+		} catch (Exception e) {
+		}
 	}
 
 }

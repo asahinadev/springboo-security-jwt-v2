@@ -20,8 +20,7 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
  */
 @Component
 public class HttpServletWrapperFilter
-		extends GenericFilterBean
-		implements OrderedFilter {
+		extends GenericFilterBean implements OrderedFilter {
 
 	@Override
 	public void doFilter(

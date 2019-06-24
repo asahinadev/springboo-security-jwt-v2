@@ -7,11 +7,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.example.spring.jwt.authentication.endpoint.JWTAuthenticationEntryPoint;
-import com.example.spring.jwt.authentication.filter.JWTAuthorizationFilter;
-import com.example.spring.jwt.authentication.properties.AuthProperties;
+import com.example.spring.jwt.filter.JWTAuthorizationFilter;
+import com.example.spring.jwt.properties.AuthProperties;
 
 @Configurable
 @EnableWebSecurity
@@ -53,13 +53,12 @@ public class SecurityConfig
 	private BasicAuthenticationFilter authenticationFilter() throws Exception {
 		BasicAuthenticationFilter filter = new JWTAuthorizationFilter(
 				authenticationManager(),
-				authenticationEntryPoint(),
-				authProperties);
+				authenticationEntryPoint());
 		return filter;
 	}
 
 	private AuthenticationEntryPoint authenticationEntryPoint() {
-		return new JWTAuthenticationEntryPoint();
+		return new BasicAuthenticationEntryPoint();
 	}
 
 }
