@@ -1,8 +1,8 @@
 package com.example.spring.jwt.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.example.spring.jwt.dto.ResponceDto;
 
@@ -30,12 +30,9 @@ public class JsonUtilTest {
 
 		TestDef test = new TestDef();
 		test.setTest(test);
-
-		try {
+		assertThrows(Exception.class, () -> {
 			JsonUtil.toString(test);
-			fail();
-		} catch (Exception e) {
-		}
+		});
 	}
 
 	@Test
@@ -45,11 +42,9 @@ public class JsonUtilTest {
 
 	@Test
 	public void testToObjectError() {
-		try {
+		assertThrows(Exception.class, () -> {
 			JsonUtil.toObject(ResponceDto.class, "{");
-			fail();
-		} catch (Exception e) {
-		}
+		});
 	}
 
 }

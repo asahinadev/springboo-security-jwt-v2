@@ -1,20 +1,16 @@
 package com.example.spring.jwt.controller;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.example.spring.jwt.dto.ResponceDto;
 import com.example.spring.jwt.values.Status;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 public class ErrorControllerTest {
 
@@ -29,9 +25,9 @@ public class ErrorControllerTest {
 
 	private void test(ResponceDto dto, String code, Exception exception) {
 
-		assertThat(dto.getStatus(), equalTo(Status.NG));
-		assertThat(dto.getMessage(), equalTo(exception.getMessage()));
-		assertThat(dto.getCode(), equalTo(code));
+		assertEquals(dto.getStatus(), (Status.NG));
+		assertEquals(dto.getMessage(), (exception.getMessage()));
+		assertEquals(dto.getCode(), (code));
 	}
 
 	@Test
